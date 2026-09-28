@@ -1,1861 +1,1228 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from datetime import datetime, timezone
 import json
 import logging
 import os
 import platform
+import sys
+import time
+from datetime import datetime, timezone
 
-
-# ============================================================
-# CONFIGURATION
-# ============================================================
 
 APP_NAME = "Python DevOps Platform"
-APP_VERSION = "2.0.0"
+APP_VERSION = "3.0.0"
 SERVICE_NAME = "python-devops-demo"
 
 PORT = int(os.environ.get("PORT", "8000"))
-
-
-# ============================================================
-# LOGGING
-# ============================================================
+START_TIME = time.time()
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s"
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(SERVICE_NAME)
 
 
-# ============================================================
-# HTML WEBSITE
-# ============================================================
-
-HTML = """
+HTML = r"""
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Python DevOps Platform</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background: #07111f;
+    color: #f8fafc;
+    line-height: 1.6;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.container {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+}
+
+
+/* NAVBAR */
+
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    background: rgba(7, 17, 31, 0.88);
+    backdrop-filter: blur(16px);
+
+    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.nav-inner {
+    min-height: 72px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+}
 
-    <meta charset="UTF-8">
+.logo {
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.logo span {
+    color: #38bdf8;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    color: #cbd5e1;
+    font-size: 14px;
+}
 
-    <meta
-        name="description"
-        content="Professional Python, Docker and DevOps portfolio platform."
-    >
+.nav-links a:hover {
+    color: #38bdf8;
+}
 
-    <meta
-        name="theme-color"
-        content="#0b1020"
-    >
 
-    <title>Python DevOps Platform</title>
+/* HERO */
 
-    <style>
+.hero {
+    padding: 100px 0 80px;
 
-        /* =====================================================
-           RESET
-           ===================================================== */
+    background:
+        radial-gradient(
+            circle at 20% 20%,
+            rgba(56, 189, 248, 0.16),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 80% 30%,
+            rgba(99, 102, 241, 0.14),
+            transparent 35%
+        );
+}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 60px;
+    align-items: center;
+}
 
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
 
-        html {
-            scroll-behavior: smooth;
-        }
+    padding: 8px 13px;
 
+    border-radius: 999px;
 
-        body {
-            font-family:
-                Inter,
-                ui-sans-serif,
-                system-ui,
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                sans-serif;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.25);
 
-            background:
-                radial-gradient(
-                    circle at top left,
-                    #172554 0,
-                    #0b1020 40%,
-                    #050816 100%
-                );
+    color: #86efac;
 
-            color: #ffffff;
-            min-height: 100vh;
-            line-height: 1.6;
-        }
+    font-size: 13px;
+    font-weight: 700;
 
+    margin-bottom: 25px;
+}
 
-        a {
-            color: inherit;
-            text-decoration: none;
-        }
+.badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 12px #22c55e;
+}
 
+.hero h1 {
+    font-size: clamp(45px, 7vw, 78px);
+    line-height: 0.98;
+    letter-spacing: -4px;
 
-        button {
-            font-family: inherit;
-        }
+    max-width: 800px;
 
+    margin-bottom: 28px;
+}
 
-        /* =====================================================
-           NAVIGATION
-           ===================================================== */
+.hero h1 span {
+    color: #38bdf8;
+}
 
-        .navbar {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+.hero-description {
+    max-width: 650px;
 
-            backdrop-filter: blur(18px);
+    color: #94a3b8;
 
-            background:
-                rgba(5, 8, 22, 0.78);
+    font-size: 19px;
 
-            border-bottom:
-                1px solid rgba(255, 255, 255, 0.08);
-        }
+    margin-bottom: 35px;
+}
 
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
 
-        .nav-container {
-            width: min(1180px, 92%);
-            margin: auto;
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
-            min-height: 72px;
+    min-height: 48px;
 
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+    padding: 0 22px;
 
+    border-radius: 11px;
 
-        .logo {
-            font-size: 21px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
+    font-weight: 700;
+    font-size: 14px;
 
+    transition: 0.2s ease;
+}
 
-        .logo span {
-            color: #60a5fa;
-        }
+.btn-primary {
+    background: #38bdf8;
+    color: #03111c;
+}
 
+.btn-primary:hover {
+    transform: translateY(-2px);
+    background: #7dd3fc;
+}
 
-        .nav-links {
-            display: flex;
-            gap: 28px;
-            list-style: none;
-        }
+.btn-secondary {
+    border: 1px solid #334155;
+    color: #e2e8f0;
+}
 
+.btn-secondary:hover {
+    background: #111c2d;
+}
 
-        .nav-links a {
-            color: #cbd5e1;
-            font-size: 14px;
-            transition: 0.25s;
-        }
 
+/* TERMINAL */
 
-        .nav-links a:hover {
-            color: #ffffff;
-        }
+.terminal {
+    background: #020617;
 
+    border: 1px solid #1e293b;
 
-        /* =====================================================
-           GENERAL
-           ===================================================== */
+    border-radius: 18px;
 
-        .container {
-            width: min(1180px, 92%);
-            margin: auto;
-        }
+    overflow: hidden;
 
+    box-shadow:
+        0 25px 80px rgba(0, 0, 0, 0.35);
+}
 
-        section {
-            padding: 100px 0;
-        }
+.terminal-header {
+    display: flex;
+    align-items: center;
+    gap: 7px;
 
+    padding: 13px 16px;
 
-        .section-label {
-            color: #60a5fa;
-            font-size: 13px;
-            font-weight: 800;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 12px;
-        }
+    background: #0f172a;
 
+    border-bottom: 1px solid #1e293b;
+}
 
-        .section-title {
-            font-size: clamp(32px, 5vw, 48px);
-            line-height: 1.1;
-            margin-bottom: 18px;
-        }
+.terminal-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #475569;
+}
 
+.terminal-title {
+    margin-left: 8px;
+    color: #64748b;
+    font-size: 12px;
+}
 
-        .section-description {
-            max-width: 680px;
-            color: #94a3b8;
-            font-size: 17px;
-        }
+.terminal-body {
+    padding: 25px;
 
+    font-family:
+        "SFMono-Regular",
+        Consolas,
+        monospace;
 
-        /* =====================================================
-           HERO
-           ===================================================== */
+    font-size: 13px;
 
-        .hero {
-            min-height: calc(100vh - 72px);
+    color: #cbd5e1;
+}
 
-            display: flex;
-            align-items: center;
+.line {
+    margin-bottom: 12px;
+}
 
-            position: relative;
-            overflow: hidden;
-        }
+.green {
+    color: #4ade80;
+}
 
+.blue {
+    color: #38bdf8;
+}
 
-        .hero::before {
-            content: "";
+.purple {
+    color: #a78bfa;
+}
 
-            position: absolute;
+.gray {
+    color: #64748b;
+}
 
-            width: 500px;
-            height: 500px;
 
-            right: -180px;
-            top: -150px;
+/* SECTIONS */
 
-            background: #2563eb;
+section {
+    padding: 95px 0;
+}
 
-            filter: blur(150px);
+.section-header {
+    max-width: 700px;
+    margin-bottom: 50px;
+}
 
-            opacity: 0.18;
-        }
+.section-label {
+    color: #38bdf8;
 
+    font-size: 13px;
+    font-weight: 800;
 
-        .hero-grid {
-            display: grid;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 
-            grid-template-columns:
-                1.15fr
-                0.85fr;
+    margin-bottom: 12px;
+}
 
-            gap: 60px;
+.section-title {
+    font-size: clamp(32px, 5vw, 50px);
 
-            align-items: center;
-        }
+    line-height: 1.05;
 
+    letter-spacing: -2px;
 
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 9px;
+    margin-bottom: 18px;
+}
 
-            padding: 9px 15px;
+.section-description {
+    color: #94a3b8;
+    font-size: 17px;
+}
 
-            border-radius: 999px;
 
-            background:
-                rgba(34, 197, 94, 0.10);
+/* CARDS */
 
-            border:
-                1px solid rgba(34, 197, 94, 0.25);
+.cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
 
-            color: #86efac;
+.card {
+    padding: 28px;
 
-            font-size: 13px;
-            font-weight: 700;
+    background: #0b1729;
 
-            margin-bottom: 25px;
-        }
+    border: 1px solid #1e293b;
 
+    border-radius: 18px;
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
+    transition: 0.25s ease;
+}
 
-            border-radius: 50%;
+.card:hover {
+    transform: translateY(-5px);
 
-            background: #22c55e;
+    border-color: rgba(56, 189, 248, 0.4);
 
-            box-shadow:
-                0 0 14px #22c55e;
-        }
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.2);
+}
 
+.card-icon {
+    font-size: 28px;
+    margin-bottom: 18px;
+}
 
-        .hero h1 {
-            font-size: clamp(48px, 7vw, 82px);
+.card h3 {
+    font-size: 19px;
+    margin-bottom: 10px;
+}
 
-            line-height: 0.98;
+.card p {
+    color: #94a3b8;
+    font-size: 14px;
+}
 
-            letter-spacing: -4px;
 
-            margin-bottom: 25px;
-        }
+/* STACK */
 
+.stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
 
-        .hero h1 span {
-            background:
-                linear-gradient(
-                    90deg,
-                    #60a5fa,
-                    #a78bfa
-                );
+.tech {
+    padding: 10px 15px;
 
-            -webkit-background-clip: text;
-            background-clip: text;
+    border: 1px solid #334155;
 
-            color: transparent;
-        }
+    background: #0b1729;
 
+    border-radius: 10px;
 
-        .hero-text {
-            color: #94a3b8;
+    color: #cbd5e1;
 
-            font-size: 19px;
+    font-size: 14px;
+}
 
-            max-width: 650px;
 
-            margin-bottom: 35px;
-        }
+/* PROJECT */
 
+.project {
+    display: grid;
 
-        .hero-buttons {
-            display: flex;
-            gap: 14px;
-            flex-wrap: wrap;
-        }
+    grid-template-columns: 1fr 1fr;
 
+    gap: 25px;
+}
 
-        .btn {
-            display: inline-flex;
+.project-box {
+    background: #0b1729;
 
-            align-items: center;
-            justify-content: center;
+    border: 1px solid #1e293b;
 
-            min-height: 48px;
+    border-radius: 18px;
 
-            padding: 0 22px;
+    padding: 30px;
+}
 
-            border-radius: 12px;
+.project-box h3 {
+    font-size: 23px;
+    margin-bottom: 12px;
+}
 
-            font-weight: 700;
+.project-box p {
+    color: #94a3b8;
+    margin-bottom: 20px;
+}
 
-            font-size: 14px;
 
-            transition:
-                transform 0.2s,
-                background 0.2s,
-                border 0.2s;
-        }
+/* STATUS */
 
+.status-grid {
+    display: grid;
 
-        .btn:hover {
-            transform: translateY(-2px);
-        }
+    grid-template-columns: repeat(4, 1fr);
 
+    gap: 15px;
+}
 
-        .btn-primary {
-            background: #2563eb;
-            color: #ffffff;
+.status-card {
+    padding: 22px;
 
-            box-shadow:
-                0 12px 30px
-                rgba(37, 99, 235, 0.25);
-        }
+    background: #0b1729;
 
+    border: 1px solid #1e293b;
 
-        .btn-primary:hover {
-            background: #3b82f6;
-        }
+    border-radius: 15px;
+}
 
+.status-card small {
+    color: #64748b;
 
-        .btn-secondary {
-            background:
-                rgba(255, 255, 255, 0.05);
+    display: block;
 
-            border:
-                1px solid rgba(255, 255, 255, 0.12);
+    margin-bottom: 6px;
+}
 
-            color: #ffffff;
-        }
+.status-value {
+    font-weight: 800;
+    font-size: 18px;
+}
 
+.online {
+    color: #4ade80;
+}
 
-        .btn-secondary:hover {
-            background:
-                rgba(255, 255, 255, 0.09);
-        }
 
+/* CONTACT */
 
-        /* =====================================================
-           TERMINAL CARD
-           ===================================================== */
+.contact {
+    text-align: center;
 
-        .terminal {
-            border:
-                1px solid rgba(255, 255, 255, 0.10);
+    padding: 70px 30px;
 
-            background:
-                rgba(15, 23, 42, 0.78);
+    border-radius: 25px;
 
-            border-radius: 20px;
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(56, 189, 248, 0.14),
+            transparent 60%
+        );
 
-            overflow: hidden;
+    border: 1px solid #1e293b;
+}
 
-            box-shadow:
-                0 30px 80px
-                rgba(0, 0, 0, 0.35);
-        }
+.contact p {
+    max-width: 650px;
 
+    margin: 0 auto 30px;
 
-        .terminal-header {
-            height: 46px;
+    color: #94a3b8;
+}
 
-            display: flex;
-            align-items: center;
 
-            gap: 7px;
+/* FOOTER */
 
-            padding: 0 16px;
+footer {
+    padding: 35px 0;
 
-            border-bottom:
-                1px solid rgba(255, 255, 255, 0.07);
-        }
+    border-top: 1px solid #1e293b;
 
+    color: #64748b;
 
-        .terminal-dot {
-            width: 10px;
-            height: 10px;
+    font-size: 13px;
+}
 
-            border-radius: 50%;
+.footer-inner {
+    display: flex;
 
-            background: #64748b;
-        }
+    align-items: center;
 
+    justify-content: space-between;
 
-        .terminal-body {
-            padding: 25px;
+    gap: 20px;
+}
 
-            font-family:
-                "Courier New",
-                monospace;
 
-            font-size: 14px;
+/* MOBILE */
 
-            color: #cbd5e1;
+@media (max-width: 900px) {
 
-            min-height: 300px;
-        }
+    .hero-grid {
+        grid-template-columns: 1fr;
+    }
 
+    .cards {
+        grid-template-columns: 1fr;
+    }
 
-        .terminal-line {
-            margin-bottom: 12px;
-        }
+    .status-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 
+    .project {
+        grid-template-columns: 1fr;
+    }
 
-        .terminal-green {
-            color: #4ade80;
-        }
+    .nav-links {
+        display: none;
+    }
 
+}
 
-        .terminal-blue {
-            color: #60a5fa;
-        }
+@media (max-width: 600px) {
 
+    .container {
+        width: min(100% - 28px, 1180px);
+    }
 
-        .terminal-purple {
-            color: #c084fc;
-        }
+    .hero {
+        padding-top: 70px;
+    }
 
+    .hero h1 {
+        letter-spacing: -2px;
+    }
 
-        .terminal-gray {
-            color: #64748b;
-        }
+    section {
+        padding: 70px 0;
+    }
 
+    .status-grid {
+        grid-template-columns: 1fr;
+    }
 
-        /* =====================================================
-           STATS
-           ===================================================== */
+    .footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-        .stats {
-            display: grid;
+}
 
-            grid-template-columns:
-                repeat(4, 1fr);
-
-            gap: 18px;
-
-            margin-top: 55px;
-        }
-
-
-        .stat-card {
-            padding: 24px;
-
-            border-radius: 18px;
-
-            background:
-                rgba(255, 255, 255, 0.045);
-
-            border:
-                1px solid rgba(255, 255, 255, 0.08);
-        }
-
-
-        .stat-number {
-            font-size: 30px;
-            font-weight: 800;
-
-            margin-bottom: 5px;
-        }
-
-
-        .stat-text {
-            color: #94a3b8;
-            font-size: 13px;
-        }
-
-
-        /* =====================================================
-           ABOUT
-           ===================================================== */
-
-        .about-grid {
-            display: grid;
-
-            grid-template-columns:
-                1fr
-                1fr;
-
-            gap: 60px;
-
-            margin-top: 45px;
-        }
-
-
-        .about-text {
-            color: #94a3b8;
-            font-size: 17px;
-        }
-
-
-        .about-text p {
-            margin-bottom: 18px;
-        }
-
-
-        .skills {
-            display: grid;
-
-            grid-template-columns:
-                repeat(2, 1fr);
-
-            gap: 14px;
-        }
-
-
-        .skill {
-            padding: 20px;
-
-            border-radius: 16px;
-
-            background:
-                rgba(255, 255, 255, 0.045);
-
-            border:
-                1px solid rgba(255, 255, 255, 0.08);
-        }
-
-
-        .skill strong {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-
-        .skill span {
-            color: #94a3b8;
-            font-size: 13px;
-        }
-
-
-        /* =====================================================
-           SERVICES
-           ===================================================== */
-
-        .cards {
-            display: grid;
-
-            grid-template-columns:
-                repeat(3, 1fr);
-
-            gap: 18px;
-
-            margin-top: 45px;
-        }
-
-
-        .card {
-            padding: 30px;
-
-            border-radius: 20px;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(255, 255, 255, 0.065),
-                    rgba(255, 255, 255, 0.025)
-                );
-
-            border:
-                1px solid rgba(255, 255, 255, 0.08);
-
-            transition:
-                transform 0.25s,
-                border 0.25s;
-        }
-
-
-        .card:hover {
-            transform: translateY(-5px);
-
-            border-color:
-                rgba(96, 165, 250, 0.35);
-        }
-
-
-        .card-icon {
-            font-size: 30px;
-            margin-bottom: 20px;
-        }
-
-
-        .card h3 {
-            margin-bottom: 10px;
-            font-size: 20px;
-        }
-
-
-        .card p {
-            color: #94a3b8;
-            font-size: 14px;
-        }
-
-
-        /* =====================================================
-           PROJECTS
-           ===================================================== */
-
-        .projects {
-            display: grid;
-
-            grid-template-columns:
-                repeat(2, 1fr);
-
-            gap: 18px;
-
-            margin-top: 45px;
-        }
-
-
-        .project {
-            padding: 28px;
-
-            border-radius: 20px;
-
-            background:
-                rgba(255, 255, 255, 0.045);
-
-            border:
-                1px solid rgba(255, 255, 255, 0.08);
-        }
-
-
-        .project-top {
-            display: flex;
-            justify-content: space-between;
-
-            gap: 15px;
-
-            margin-bottom: 18px;
-        }
-
-
-        .project h3 {
-            font-size: 21px;
-        }
-
-
-        .project-status {
-            color: #86efac;
-
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-
-        .project p {
-            color: #94a3b8;
-
-            font-size: 14px;
-
-            margin-bottom: 20px;
-        }
-
-
-        .tags {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-
-        .tag {
-            padding: 6px 10px;
-
-            border-radius: 8px;
-
-            background:
-                rgba(96, 165, 250, 0.10);
-
-            color: #93c5fd;
-
-            font-size: 11px;
-
-            border:
-                1px solid rgba(96, 165, 250, 0.15);
-        }
-
-
-        /* =====================================================
-           STATUS
-           ===================================================== */
-
-        .status-panel {
-            margin-top: 45px;
-
-            padding: 30px;
-
-            border-radius: 20px;
-
-            background:
-                rgba(255, 255, 255, 0.045);
-
-            border:
-                1px solid rgba(255, 255, 255, 0.08);
-        }
-
-
-        .status-row {
-            display: flex;
-
-            align-items: center;
-            justify-content: space-between;
-
-            padding: 16px 0;
-
-            border-bottom:
-                1px solid rgba(255, 255, 255, 0.07);
-        }
-
-
-        .status-row:last-child {
-            border-bottom: none;
-        }
-
-
-        .status-name {
-            color: #cbd5e1;
-        }
-
-
-        .status-value {
-            color: #4ade80;
-            font-weight: 700;
-        }
-
-
-        /* =====================================================
-           CONTACT
-           ===================================================== */
-
-        .contact-box {
-            margin-top: 45px;
-
-            padding: 45px;
-
-            border-radius: 24px;
-
-            text-align: center;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(37, 99, 235, 0.16),
-                    rgba(124, 58, 237, 0.12)
-                );
-
-            border:
-                1px solid rgba(96, 165, 250, 0.16);
-        }
-
-
-        .contact-box h2 {
-            font-size: 34px;
-            margin-bottom: 12px;
-        }
-
-
-        .contact-box p {
-            color: #94a3b8;
-            margin-bottom: 25px;
-        }
-
-
-        /* =====================================================
-           FOOTER
-           ===================================================== */
-
-        footer {
-            padding: 35px 0;
-
-            border-top:
-                1px solid rgba(255, 255, 255, 0.07);
-
-            color: #64748b;
-
-            font-size: 13px;
-        }
-
-
-        .footer-content {
-            display: flex;
-
-            justify-content: space-between;
-            align-items: center;
-
-            gap: 20px;
-        }
-
-
-        /* =====================================================
-           RESPONSIVE
-           ===================================================== */
-
-        @media (max-width: 900px) {
-
-            .hero-grid,
-            .about-grid {
-                grid-template-columns: 1fr;
-            }
-
-
-            .cards {
-                grid-template-columns: 1fr 1fr;
-            }
-
-
-            .projects {
-                grid-template-columns: 1fr;
-            }
-
-
-            .stats {
-                grid-template-columns: 1fr 1fr;
-            }
-
-        }
-
-
-        @media (max-width: 650px) {
-
-            section {
-                padding: 75px 0;
-            }
-
-
-            .nav-links {
-                display: none;
-            }
-
-
-            .hero h1 {
-                letter-spacing: -2px;
-            }
-
-
-            .cards,
-            .skills,
-            .stats {
-                grid-template-columns: 1fr;
-            }
-
-
-            .contact-box {
-                padding: 30px 20px;
-            }
-
-
-            .footer-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-        }
-
-    </style>
-
+</style>
 </head>
 
 
 <body>
 
 
-<!-- =========================================================
-     NAVIGATION
-     ========================================================= -->
-
 <nav class="navbar">
 
-    <div class="nav-container">
+<div class="container nav-inner">
 
-        <a href="#home" class="logo">
-            Dev<span>Ops</span>.Platform
-        </a>
+<a href="/" class="logo">
+Python<span>DevOps</span>
+</a>
 
-        <ul class="nav-links">
+<div class="nav-links">
 
-            <li>
-                <a href="#about">About</a>
-            </li>
+<a href="#about">About</a>
+<a href="#services">Services</a>
+<a href="#projects">Projects</a>
+<a href="#status">Status</a>
 
-            <li>
-                <a href="#services">Services</a>
-            </li>
+</div>
 
-            <li>
-                <a href="#projects">Projects</a>
-            </li>
-
-            <li>
-                <a href="#status">Status</a>
-            </li>
-
-            <li>
-                <a href="#contact">Contact</a>
-            </li>
-
-        </ul>
-
-    </div>
+</div>
 
 </nav>
 
 
-<!-- =========================================================
-     HERO
-     ========================================================= -->
-
 <main>
 
-<section id="home" class="hero">
 
-    <div class="container">
+<section class="hero">
 
-        <div class="hero-grid">
+<div class="container hero-grid">
 
-            <div>
 
-                <div class="status-badge">
+<div>
 
-                    <span class="status-dot"></span>
+<div class="badge">
 
-                    SYSTEM ONLINE
+<span class="badge-dot"></span>
 
-                </div>
+SYSTEM OPERATIONAL
 
+</div>
 
-                <h1>
 
-                    Build.
+<h1>
 
-                    <br>
+Python infrastructure.
 
-                    Deploy.
+<span>Built to run.</span>
 
-                    <br>
+</h1>
 
-                    <span>Scale.</span>
 
-                </h1>
+<p class="hero-description">
 
+A production-style Python DevOps platform demonstrating
+containerization, automated testing, CI/CD, APIs and cloud deployment.
 
-                <p class="hero-text">
+</p>
 
-                    A professional Python and DevOps platform
-                    built with Docker, GitHub Actions and
-                    cloud deployment technology.
 
-                </p>
+<div class="buttons">
 
+<a class="btn btn-primary" href="#projects">
+View project
+</a>
 
-                <div class="hero-buttons">
+<a class="btn btn-secondary" href="#services">
+Explore services
+</a>
 
-                    <a
-                        href="#projects"
-                        class="btn btn-primary"
-                    >
-                        View Projects
-                    </a>
+</div>
 
+</div>
 
-                    <a
-                        href="/api/status"
-                        class="btn btn-secondary"
-                    >
-                        Check API
-                    </a>
 
-                </div>
+<div class="terminal">
 
-            </div>
+<div class="terminal-header">
 
+<span class="terminal-dot"></span>
+<span class="terminal-dot"></span>
+<span class="terminal-dot"></span>
 
-            <div class="terminal">
+<span class="terminal-title">
+server@devops
+</span>
 
-                <div class="terminal-header">
+</div>
 
-                    <span class="terminal-dot"></span>
-                    <span class="terminal-dot"></span>
-                    <span class="terminal-dot"></span>
 
-                </div>
+<div class="terminal-body">
 
+<div class="line">
+<span class="gray">$</span>
+<span class="blue">python</span> app.py
+</div>
 
-                <div class="terminal-body">
+<div class="line green">
+✓ Server started
+</div>
 
-                    <div class="terminal-line">
+<div class="line">
+PORT=<span class="purple">dynamic</span>
+</div>
 
-                        <span class="terminal-green">
-                            $
-                        </span>
+<div class="line">
+ENV=<span class="purple">production</span>
+</div>
 
-                        python app.py
+<div class="line green">
+✓ API available
+</div>
 
-                    </div>
+<div class="line green">
+✓ Docker ready
+</div>
 
+<div class="line green">
+✓ CI/CD configured
+</div>
 
-                    <div class="terminal-line">
+<div class="line green">
+✓ Cloud deployment active
+</div>
 
-                        <span class="terminal-gray">
-                            Starting application...
-                        </span>
+<div class="line">
+<span class="gray">$</span> systemctl status application
+</div>
 
-                    </div>
+<div class="line green">
+● active (running)
+</div>
 
+</div>
 
-                    <div class="terminal-line">
+</div>
 
-                        <span class="terminal-blue">
-                            Docker
-                        </span>
 
-                        container started
-
-                    </div>
-
-
-                    <div class="terminal-line">
-
-                        <span class="terminal-purple">
-                            GitHub Actions
-                        </span>
-
-                        CI/CD ready
-
-                    </div>
-
-
-                    <div class="terminal-line">
-
-                        <span class="terminal-blue">
-                            Render
-                        </span>
-
-                        deployment active
-
-                    </div>
-
-
-                    <div class="terminal-line">
-
-                        <span class="terminal-green">
-                            ✓ SERVER ONLINE
-                        </span>
-
-                    </div>
-
-
-                    <div class="terminal-line">
-
-                        <span class="terminal-green">
-                            ✓ HEALTH CHECK OK
-                        </span>
-
-                    </div>
-
-
-                    <div class="terminal-line">
-
-                        <span class="terminal-green">
-                            ✓ APPLICATION READY
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="stats">
-
-            <div class="stat-card">
-
-                <div class="stat-number">
-                    24/7
-                </div>
-
-                <div class="stat-text">
-                    Cloud availability
-                </div>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <div class="stat-number">
-                    CI/CD
-                </div>
-
-                <div class="stat-text">
-                    Automated workflow
-                </div>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <div class="stat-number">
-                    Docker
-                </div>
-
-                <div class="stat-text">
-                    Containerized app
-                </div>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <div class="stat-number">
-                    API
-                </div>
-
-                <div class="stat-text">
-                    REST endpoints
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
+</div>
 
 </section>
 
-
-<!-- =========================================================
-     ABOUT
-     ========================================================= -->
 
 <section id="about">
 
-    <div class="container">
+<div class="container">
 
-        <div class="section-label">
-            About
-        </div>
+<div class="section-header">
 
-        <h2 class="section-title">
-            Engineering with automation.
-        </h2>
+<div class="section-label">
+01 / About
+</div>
 
-        <p class="section-description">
+<h2 class="section-title">
+Modern DevOps workflow
+</h2>
 
-            This platform demonstrates a complete
-            development and deployment workflow from
-            source code to production.
+<p class="section-description">
 
-        </p>
+This project demonstrates a complete path from source code
+to a live cloud application.
 
+</p>
 
-        <div class="about-grid">
-
-            <div class="about-text">
-
-                <p>
-                    The application is written in Python and
-                    runs as a lightweight HTTP service.
-                </p>
-
-                <p>
-                    Docker provides a reproducible runtime
-                    environment while GitHub Actions handles
-                    automated testing and container builds.
-                </p>
-
-                <p>
-                    The application is deployed to the cloud
-                    and exposed through a public production URL.
-                </p>
-
-            </div>
+</div>
 
 
-            <div class="skills">
+<div class="cards">
 
-                <div class="skill">
-                    <strong>Python</strong>
-                    <span>Backend development</span>
-                </div>
+<div class="card">
 
+<div class="card-icon">🐍</div>
 
-                <div class="skill">
-                    <strong>Docker</strong>
-                    <span>Containerization</span>
-                </div>
+<h3>Python</h3>
 
+<p>
+Lightweight HTTP application with JSON APIs,
+health endpoints and production-friendly configuration.
+</p>
 
-                <div class="skill">
-                    <strong>GitHub Actions</strong>
-                    <span>CI/CD automation</span>
-                </div>
+</div>
 
 
-                <div class="skill">
-                    <strong>Cloud Deployment</strong>
-                    <span>Production hosting</span>
-                </div>
+<div class="card">
+
+<div class="card-icon">🐳</div>
+
+<h3>Docker</h3>
+
+<p>
+The application is packaged into a reproducible
+container image for consistent deployments.
+</p>
+
+</div>
 
 
-                <div class="skill">
-                    <strong>REST API</strong>
-                    <span>Service endpoints</span>
-                </div>
+<div class="card">
 
+<div class="card-icon">⚙️</div>
 
-                <div class="skill">
-                    <strong>Linux / DevOps</strong>
-                    <span>Infrastructure concepts</span>
-                </div>
+<h3>CI/CD</h3>
 
-            </div>
+<p>
+Automated testing and Docker image builds
+can run through GitHub Actions.
+</p>
 
-        </div>
+</div>
 
-    </div>
+</div>
+
+</div>
 
 </section>
 
-
-<!-- =========================================================
-     SERVICES
-     ========================================================= -->
 
 <section id="services">
 
-    <div class="container">
+<div class="container">
 
-        <div class="section-label">
-            Services
-        </div>
+<div class="section-header">
 
-        <h2 class="section-title">
-            What can be delivered?
-        </h2>
+<div class="section-label">
+02 / Services
+</div>
 
-        <p class="section-description">
+<h2 class="section-title">
+What this platform demonstrates
+</h2>
 
-            The same technologies used in this demo can be
-            applied to real applications and small businesses.
+<p class="section-description">
+Core capabilities used in modern small-scale DevOps deployments.
+</p>
 
-        </p>
-
-
-        <div class="cards">
-
-            <div class="card">
-
-                <div class="card-icon">
-                    🐍
-                </div>
-
-                <h3>
-                    Python Development
-                </h3>
-
-                <p>
-                    Lightweight APIs, backend services,
-                    automation scripts and web applications.
-                </p>
-
-            </div>
+</div>
 
 
-            <div class="card">
+<div class="cards">
 
-                <div class="card-icon">
-                    🐳
-                </div>
+<div class="card">
 
-                <h3>
-                    Docker Deployment
-                </h3>
+<div class="card-icon">🚀</div>
 
-                <p>
-                    Package applications into reproducible
-                    containers for reliable deployment.
-                </p>
+<h3>Deployment</h3>
 
-            </div>
+<p>
+Deploy Python applications to cloud infrastructure
+using containerized workflows.
+</p>
+
+</div>
 
 
-            <div class="card">
+<div class="card">
 
-                <div class="card-icon">
-                    ⚙️
-                </div>
+<div class="card-icon">🔄</div>
 
-                <h3>
-                    CI/CD Automation
-                </h3>
+<h3>CI/CD</h3>
 
-                <p>
-                    Automate testing, builds and deployment
-                    with GitHub Actions workflows.
-                </p>
+<p>
+Automate testing, Docker builds and delivery
+after changes are pushed to GitHub.
+</p>
 
-            </div>
+</div>
 
 
-            <div class="card">
+<div class="card">
 
-                <div class="card-icon">
-                    ☁️
-                </div>
+<div class="card-icon">📊</div>
 
-                <h3>
-                    Cloud Deployment
-                </h3>
+<h3>Monitoring</h3>
 
-                <p>
-                    Deploy applications to modern cloud
-                    platforms and configure production services.
-                </p>
+<p>
+Expose health and information endpoints
+that can be monitored by infrastructure tools.
+</p>
 
-            </div>
+</div>
 
 
-            <div class="card">
+<div class="card">
 
-                <div class="card-icon">
-                    📊
-                </div>
+<div class="card-icon">🔐</div>
 
-                <h3>
-                    Monitoring
-                </h3>
+<h3>Configuration</h3>
 
-                <p>
-                    Health checks, status endpoints and
-                    application logging.
-                </p>
+<p>
+Use environment variables and production-safe
+configuration instead of hardcoded infrastructure values.
+</p>
 
-            </div>
+</div>
 
 
-            <div class="card">
+<div class="card">
 
-                <div class="card-icon">
-                    🔐
-                </div>
+<div class="card-icon">🧪</div>
 
-                <h3>
-                    Production Basics
-                </h3>
+<h3>Testing</h3>
 
-                <p>
-                    Environment variables, secure configuration,
-                    error handling and deployment practices.
-                </p>
+<p>
+Automated tests verify the application's important
+HTTP endpoints before deployment.
+</p>
 
-            </div>
+</div>
 
-        </div>
 
-    </div>
+<div class="card">
+
+<div class="card-icon">☁️</div>
+
+<h3>Cloud Ready</h3>
+
+<p>
+Designed to run with cloud platforms that provide
+a dynamic PORT environment variable.
+</p>
+
+</div>
+
+</div>
+
+</div>
 
 </section>
 
 
-<!-- =========================================================
-     PROJECTS
-     ========================================================= -->
+<section>
+
+<div class="container">
+
+<div class="section-header">
+
+<div class="section-label">
+03 / Technology
+</div>
+
+<h2 class="section-title">
+Technology stack
+</h2>
+
+</div>
+
+
+<div class="stack">
+
+<div class="tech">Python</div>
+<div class="tech">HTTP Server</div>
+<div class="tech">REST API</div>
+<div class="tech">Docker</div>
+<div class="tech">GitHub</div>
+<div class="tech">GitHub Actions</div>
+<div class="tech">GHCR</div>
+<div class="tech">Render</div>
+<div class="tech">CI/CD</div>
+<div class="tech">Linux</div>
+
+</div>
+
+</div>
+
+</section>
+
 
 <section id="projects">
 
-    <div class="container">
+<div class="container">
 
-        <div class="section-label">
-            Projects
-        </div>
+<div class="section-header">
 
-        <h2 class="section-title">
-            Built and deployed.
-        </h2>
+<div class="section-label">
+04 / Project
+</div>
 
-        <p class="section-description">
+<h2 class="section-title">
+Python DevOps Demo
+</h2>
 
-            A growing collection of practical software and
-            infrastructure projects.
+<p class="section-description">
 
-        </p>
+A complete demonstration project connecting development,
+testing, containerization and cloud deployment.
 
+</p>
 
-        <div class="projects">
-
-            <div class="project">
-
-                <div class="project-top">
-
-                    <h3>
-                        Python DevOps Demo
-                    </h3>
-
-                    <span class="project-status">
-                        LIVE
-                    </span>
-
-                </div>
+</div>
 
 
-                <p>
-                    Production-style Python HTTP application
-                    containerized with Docker and deployed
-                    through a CI/CD workflow.
-                </p>
+<div class="project">
+
+<div class="project-box">
+
+<h3>Application</h3>
+
+<p>
+Python backend serving a responsive web interface
+and machine-readable API endpoints.
+</p>
+
+<div class="stack">
+
+<div class="tech">Python</div>
+<div class="tech">JSON API</div>
+<div class="tech">HTTP</div>
+
+</div>
+
+</div>
 
 
-                <div class="tags">
+<div class="project-box">
 
-                    <span class="tag">
-                        Python
-                    </span>
+<h3>Infrastructure</h3>
 
-                    <span class="tag">
-                        Docker
-                    </span>
+<p>
+Docker container connected to GitHub-based workflows
+and deployed to a public cloud service.
+</p>
 
-                    <span class="tag">
-                        GitHub Actions
-                    </span>
+<div class="stack">
 
-                    <span class="tag">
-                        Render
-                    </span>
+<div class="tech">Docker</div>
+<div class="tech">GitHub Actions</div>
+<div class="tech">Render</div>
 
-                </div>
+</div>
 
-            </div>
+</div>
 
+</div>
 
-            <div class="project">
-
-                <div class="project-top">
-
-                    <h3>
-                        API Monitoring
-                    </h3>
-
-                    <span class="project-status">
-                        ACTIVE
-                    </span>
-
-                </div>
-
-
-                <p>
-                    Health and status endpoints designed
-                    for automated service monitoring.
-                </p>
-
-
-                <div class="tags">
-
-                    <span class="tag">
-                        REST API
-                    </span>
-
-                    <span class="tag">
-                        Health Check
-                    </span>
-
-                    <span class="tag">
-                        Monitoring
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
+</div>
 
 </section>
 
-
-<!-- =========================================================
-     STATUS
-     ========================================================= -->
 
 <section id="status">
 
-    <div class="container">
+<div class="container">
 
-        <div class="section-label">
-            System
-        </div>
+<div class="section-header">
 
-        <h2 class="section-title">
-            Live system status.
-        </h2>
+<div class="section-label">
+05 / Live status
+</div>
 
-        <p class="section-description">
+<h2 class="section-title">
+System status
+</h2>
 
-            Production endpoints are available for
-            health checks and service monitoring.
+<p class="section-description">
 
-        </p>
+The values below are loaded from the running application.
 
+</p>
 
-        <div class="status-panel">
-
-            <div class="status-row">
-
-                <span class="status-name">
-                    Application
-                </span>
-
-                <span class="status-value">
-                    ● ONLINE
-                </span>
-
-            </div>
+</div>
 
 
-            <div class="status-row">
+<div class="status-grid">
 
-                <span class="status-name">
-                    Python Service
-                </span>
+<div class="status-card">
 
-                <span class="status-value">
-                    ● RUNNING
-                </span>
+<small>Application</small>
 
-            </div>
+<div class="status-value">
+Python DevOps Platform
+</div>
 
-
-            <div class="status-row">
-
-                <span class="status-name">
-                    Docker
-                </span>
-
-                <span class="status-value">
-                    ● ACTIVE
-                </span>
-
-            </div>
+</div>
 
 
-            <div class="status-row">
+<div class="status-card">
 
-                <span class="status-name">
-                    API
-                </span>
+<small>Version</small>
 
-                <span class="status-value">
-                    ● AVAILABLE
-                </span>
+<div class="status-value">
+3.0.0
+</div>
 
-            </div>
+</div>
 
 
-            <div class="status-row">
+<div class="status-card">
 
-                <span class="status-name">
-                    Deployment
-                </span>
+<small>Service</small>
 
-                <span class="status-value">
-                    ● LIVE
-                </span>
+<div class="status-value">
+python-devops-demo
+</div>
 
-            </div>
-
-        </div>
+</div>
 
 
-        <div
-            class="hero-buttons"
-            style="margin-top: 25px;"
-        >
+<div class="status-card">
 
-            <a
-                href="/health"
-                class="btn btn-secondary"
-            >
-                Health Check
-            </a>
+<small>Health</small>
 
+<div class="status-value online" id="health">
+Checking...
+</div>
 
-            <a
-                href="/api/status"
-                class="btn btn-secondary"
-            >
-                API Status
-            </a>
+</div>
 
+</div>
 
-            <a
-                href="/api/info"
-                class="btn btn-secondary"
-            >
-                API Info
-            </a>
-
-        </div>
-
-    </div>
+</div>
 
 </section>
 
 
-<!-- =========================================================
-     CONTACT
-     ========================================================= -->
+<section>
 
-<section id="contact">
+<div class="container">
 
-    <div class="container">
+<div class="contact">
 
-        <div class="contact-box">
+<div class="section-label">
+06 / API
+</div>
 
-            <div class="section-label">
-                Contact
-            </div>
+<h2 class="section-title">
+Developer API
+</h2>
 
-            <h2>
-                Build something useful.
-            </h2>
+<p>
+This application exposes machine-readable endpoints
+for health checks, status information and runtime details.
+</p>
 
-            <p>
-                This platform can be expanded into real
-                business applications, APIs and automated
-                cloud deployments.
-            </p>
+<div class="buttons" style="justify-content:center;">
 
+<a class="btn btn-primary" href="/api/status">
+API Status
+</a>
 
-            <a
-                href="mailto:contact@example.com"
-                class="btn btn-primary"
-            >
-                Contact
-            </a>
+<a class="btn btn-secondary" href="/api/info">
+System Info
+</a>
 
-        </div>
+</div>
 
-    </div>
+</div>
+
+</div>
 
 </section>
+
 
 </main>
 
 
-<!-- =========================================================
-     FOOTER
-     ========================================================= -->
-
 <footer>
 
-    <div class="container">
+<div class="container footer-inner">
 
-        <div class="footer-content">
+<div>
+© 2026 Python DevOps Platform
+</div>
 
-            <div>
-                Python DevOps Platform
-            </div>
+<div>
+Python • Docker • CI/CD • Cloud
+</div>
 
-            <div>
-                Python • Docker • GitHub Actions • Cloud
-            </div>
-
-        </div>
-
-    </div>
+</div>
 
 </footer>
 
 
-</body>
+<script>
 
+async function checkHealth() {
+
+    const element = document.getElementById("health");
+
+    try {
+
+        const response = await fetch("/health");
+
+        if (response.ok) {
+
+            element.textContent = "ONLINE";
+            element.className = "status-value online";
+
+        } else {
+
+            element.textContent = "DEGRADED";
+
+        }
+
+    } catch (error) {
+
+        element.textContent = "OFFLINE";
+
+    }
+
+}
+
+checkHealth();
+
+setInterval(checkHealth, 30000);
+
+</script>
+
+
+</body>
 </html>
 """
 
 
-# ============================================================
-# 404 PAGE
-# ============================================================
-
-NOT_FOUND_HTML = """
-<!DOCTYPE html>
-
-<html lang="en">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>404 - Not Found</title>
-
-    <style>
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            background: #070b16;
-            color: white;
-
-            font-family: Arial, sans-serif;
-
-            text-align: center;
-        }
-
-        .box {
-            padding: 40px;
-        }
-
-        h1 {
-            font-size: 80px;
-            margin: 0 0 10px;
-        }
-
-        p {
-            color: #94a3b8;
-            margin-bottom: 25px;
-        }
-
-        a {
-            display: inline-block;
-
-            padding: 12px 20px;
-
-            border-radius: 10px;
-
-            background: #2563eb;
-
-            color: white;
-
-            text-decoration: none;
-        }
-
-    </style>
-
-</head>
-
-<body>
-
-    <div class="box">
-
-        <h1>404</h1>
-
-        <p>
-            The requested page was not found.
-        </p>
-
-        <a href="/">
-            Return Home
-        </a>
-
-    </div>
-
-</body>
-
-</html>
-"""
-
-
-# ============================================================
-# JSON HELPERS
-# ============================================================
-
-def json_response(handler, data, status_code=200):
-    """
-    Send a JSON response.
-    """
-
-    body = json.dumps(
+def json_response(data):
+    return json.dumps(
         data,
-        indent=2
+        ensure_ascii=False
     ).encode("utf-8")
 
 
-    handler.send_response(status_code)
+def send_bytes(handler, status, content_type, body):
+    handler.send_response(status)
 
     handler.send_header(
         "Content-Type",
-        "application/json; charset=utf-8"
+        content_type
     )
 
     handler.send_header(
@@ -1870,270 +1237,190 @@ def json_response(handler, data, status_code=200):
 
     handler.end_headers()
 
-    return body
+    if handler.command != "HEAD":
+        handler.wfile.write(body)
 
-
-def html_response(handler, html, status_code=200):
-    """
-    Send an HTML response.
-    """
-
-    body = html.encode("utf-8")
-
-
-    handler.send_response(status_code)
-
-    handler.send_header(
-        "Content-Type",
-        "text/html; charset=utf-8"
-    )
-
-    handler.send_header(
-        "Content-Length",
-        str(len(body))
-    )
-
-    handler.send_header(
-        "Cache-Control",
-        "no-cache"
-    )
-
-    handler.end_headers()
-
-    return body
-
-
-# ============================================================
-# REQUEST HANDLER
-# ============================================================
 
 class Handler(BaseHTTPRequestHandler):
 
-    server_version = "PythonDevOps/2.0"
-
+    server_version = "PythonDevOps/3.0"
 
     def log_message(self, format_string, *args):
-        """
-        Use Python logging instead of the default output.
-        """
-
         logger.info(
             "%s - %s",
             self.address_string(),
             format_string % args
         )
 
-
-    def get_path(self):
-        """
-        Remove query parameters from the URL.
-        """
-
-        return self.path.split("?", 1)[0]
-
-
     def do_HEAD(self):
-        """
-        Support HEAD requests.
-        """
 
-        path = self.get_path()
-
+        path = self.path.split("?")[0]
 
         if path == "/":
-
-            body = HTML.encode("utf-8")
-
-            self.send_response(200)
-
-            self.send_header(
-                "Content-Type",
-                "text/html; charset=utf-8"
-            )
-
-            self.send_header(
-                "Content-Length",
-                str(len(body))
-            )
-
-            self.end_headers()
-
-            return
-
-
-        if path == "/health":
-
-            body = b"ok"
-
-            self.send_response(200)
-
-            self.send_header(
-                "Content-Type",
-                "text/plain; charset=utf-8"
-            )
-
-            self.send_header(
-                "Content-Length",
-                str(len(body))
-            )
-
-            self.end_headers()
-
-            return
-
-
-        if path in (
-            "/api/status",
-            "/api/info"
-        ):
-
-            self.send_response(200)
-
-            self.send_header(
-                "Content-Type",
-                "application/json; charset=utf-8"
-            )
-
-            self.end_headers()
-
-            return
-
-
-        self.send_response(404)
-        self.end_headers()
-
-
-    def do_GET(self):
-
-        path = self.get_path()
-
-
-        logger.info(
-            "GET request: %s",
-            path
-        )
-
-
-        # ----------------------------------------------------
-        # HOME
-        # ----------------------------------------------------
-
-        if path == "/":
-
-            body = html_response(
+            send_bytes(
                 self,
-                HTML,
-                200
+                200,
+                "text/html; charset=utf-8",
+                HTML.encode("utf-8")
             )
 
-            self.wfile.write(body)
-
-            return
-
-
-        # ----------------------------------------------------
-        # HEALTH
-        # ----------------------------------------------------
-
-        if path == "/health":
-
-            body = b"ok"
-
-            self.send_response(200)
-
-            self.send_header(
-                "Content-Type",
-                "text/plain; charset=utf-8"
+        elif path == "/health":
+            send_bytes(
+                self,
+                200,
+                "text/plain; charset=utf-8",
+                b"ok"
             )
 
-            self.send_header(
-                "Content-Length",
-                str(len(body))
-            )
+        elif path == "/api/status":
 
-            self.send_header(
-                "Cache-Control",
-                "no-store"
-            )
-
-            self.end_headers()
-
-            self.wfile.write(body)
-
-            return
-
-
-        # ----------------------------------------------------
-        # API STATUS
-        # ----------------------------------------------------
-
-        if path == "/api/status":
-
-            response = {
+            data = {
                 "status": "ok",
                 "service": SERVICE_NAME,
-                "version": APP_VERSION,
-                "timestamp": datetime.now(
-                    timezone.utc
-                ).isoformat()
+                "version": APP_VERSION
             }
 
-
-            body = json_response(
+            send_bytes(
                 self,
-                response,
-                200
+                200,
+                "application/json; charset=utf-8",
+                json_response(data)
             )
 
-            self.wfile.write(body)
+        elif path == "/api/info":
 
-            return
-
-
-        # ----------------------------------------------------
-        # API INFO
-        # ----------------------------------------------------
-
-        if path == "/api/info":
-
-            response = {
+            data = {
                 "application": APP_NAME,
                 "service": SERVICE_NAME,
                 "version": APP_VERSION,
                 "python": platform.python_version(),
                 "platform": platform.system(),
                 "architecture": platform.machine(),
-                "environment": "production"
+                "environment": os.environ.get(
+                    "RENDER",
+                    "local"
+                )
             }
 
-
-            body = json_response(
+            send_bytes(
                 self,
-                response,
-                200
+                200,
+                "application/json; charset=utf-8",
+                json_response(data)
             )
 
-            self.wfile.write(body)
+        else:
+            send_bytes(
+                self,
+                404,
+                "text/plain; charset=utf-8",
+                b"Not Found"
+            )
 
-            return
+    def do_GET(self):
 
+        path = self.path.split("?")[0]
 
-        # ----------------------------------------------------
-        # 404
-        # ----------------------------------------------------
+        if path == "/":
 
-        body = html_response(
-            self,
-            NOT_FOUND_HTML,
-            404
-        )
+            send_bytes(
+                self,
+                200,
+                "text/html; charset=utf-8",
+                HTML.encode("utf-8")
+            )
 
-        self.wfile.write(body)
+        elif path == "/health":
 
+            send_bytes(
+                self,
+                200,
+                "text/plain; charset=utf-8",
+                b"ok"
+            )
 
-# ============================================================
-# SERVER START
-# ============================================================
+        elif path == "/api/status":
+
+            uptime = int(
+                time.time() - START_TIME
+            )
+
+            data = {
+                "status": "ok",
+                "service": SERVICE_NAME,
+                "version": APP_VERSION,
+                "uptime_seconds": uptime,
+                "timestamp": datetime.now(
+                    timezone.utc
+                ).isoformat()
+            }
+
+            send_bytes(
+                self,
+                200,
+                "application/json; charset=utf-8",
+                json_response(data)
+            )
+
+        elif path == "/api/info":
+
+            data = {
+                "application": APP_NAME,
+                "service": SERVICE_NAME,
+                "version": APP_VERSION,
+                "python": platform.python_version(),
+                "platform": platform.system(),
+                "architecture": platform.machine(),
+                "port": PORT,
+                "environment": os.environ.get(
+                    "RENDER",
+                    "local"
+                )
+            }
+
+            send_bytes(
+                self,
+                200,
+                "application/json; charset=utf-8",
+                json_response(data)
+            )
+
+        else:
+
+            body = b"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>404 - Not Found</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        background: #07111f;
+                        color: white;
+                        text-align: center;
+                        padding: 100px 20px;
+                    }
+                    a {
+                        color: #38bdf8;
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>404</h1>
+                <p>The requested page was not found.</p>
+                <p><a href="/">Return home</a></p>
+            </body>
+            </html>
+            """
+
+            send_bytes(
+                self,
+                404,
+                "text/html; charset=utf-8",
+                body
+            )
+
 
 def main():
 
@@ -2142,26 +1429,12 @@ def main():
         Handler
     )
 
-
     logger.info(
-        "Starting %s",
-        APP_NAME
-    )
-
-    logger.info(
-        "Version: %s",
-        APP_VERSION
-    )
-
-    logger.info(
-        "Port: %s",
+        "Starting %s version %s on port %s",
+        APP_NAME,
+        APP_VERSION,
         PORT
     )
-
-    logger.info(
-        "Server is ready"
-    )
-
 
     try:
 
@@ -2169,22 +1442,12 @@ def main():
 
     except KeyboardInterrupt:
 
-        logger.info(
-            "Server stopped by user"
-        )
+        logger.info("Server stopped")
 
     finally:
 
         server.server_close()
 
-        logger.info(
-            "Server shutdown complete"
-        )
-
-
-# ============================================================
-# ENTRY POINT
-# ============================================================
 
 if __name__ == "__main__":
     main()
