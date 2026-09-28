@@ -27,5 +27,5 @@ jobs:
       - name: Run tests
         run: pytest -q
 
-      - name: Build Docker image
+      - name: Build Docker image 🚀
         run: docker build -t python-devops-demo .
