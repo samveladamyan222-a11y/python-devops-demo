@@ -1,1 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>Python DevOps Dashboard</title>
+    <meta
+        name="description"
+        content="Professional Python DevOps portfolio with Docker, CI/CD, monitoring and deployment dashboard."
+    >
+
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/app.js" defer></script>
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVIGATION
+    ========================== -->
+    <header class="navbar">
+        <div class="container nav-inner">
+
+            <a href="/" class="logo">
+                <span class="logo-mark">&lt;/&gt;</span>
+                <span>DevOps<span class="logo-accent">Lab</span></span>
+            </a>
+
+            <nav class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#dashboard">Dashboard</a>
+                <a href="#projects">Projects</a>
+                <a href="#services">Services</a>
+                <a href="#contact">Contact</a>
+            </nav>
+
+            <a
+                href="https://github.com/samveladamyan222-a11y/python-devops-demo"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="github-button"
+            >
+                GitHub
+            </a>
+
+        </div>
+    </header>
+
+
+    <!-- =========================
+         HERO
+    ========================== -->
+    <main>
+
+        <section id="home" class="hero">
+            <div class="container hero-grid">
+
+                <div class="hero-content">
+
+                    <div class="status-badge">
+                        <span class="status-dot"></span>
+                        System Online
+                    </div>
+
+                    <h1>
+                        Python
+                        <span class="gradient-text">DevOps</span>
+                        Platform
+                    </h1>
+
+                    <p class="hero-description">
+                        A production-style Python application demonstrating
+                        Docker, CI/CD, automated testing, API monitoring,
+                        cloud deployment and modern DevOps practices.
+                    </p>
+
+                    <div class="hero-buttons">
+
+                        <a href="#dashboard" class="btn btn-primary">
+                            View Dashboard
+                            <span>→</span>
+                        </a>
+
+                        <a href="#projects" class="btn btn-secondary">
+                            Explore Projects
+                        </a>
+
+                    </div>
+
+                    <div class="hero-tech">
+
+                        <span>Python</span>
+                        <span>Docker</span>
+                        <span>GitHub Actions</span>
+                        <span>Render</span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="terminal-card">
+
+                    <div class="terminal-header">
+
+                        <div class="terminal-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+
+                        <span class="terminal-title">
+                            devops@server:~
+                        </span>
+
+                    </div>
+
+                    <div class="terminal-body">
+
+                        <p>
+                            <span class="terminal-green">$</span>
+                            python app.py
+                        </p>
+
+                        <p class="terminal-muted">
+                            Starting Python DevOps server...
+                        </p>
+
+                        <p>
+                            <span class="terminal-green">✓</span>
+                            Server started
+                        </p>
+
+                        <p>
+                            <span class="terminal-green">✓</span>
+                            API initialized
+                        </p>
+
+                        <p>
+                            <span class="terminal-green">✓</span>
+                            Health check enabled
+                        </p>
+
+                        <p>
+                            <span class="terminal-green">✓</span>
+                            Docker environment ready
+                        </p>
+
+                        <p>
+                            <span class="terminal-green">✓</span>
+                            CI/CD pipeline connected
+                        </p>
+
+                        <p class="terminal-cursor">
+                            <span class="terminal-green">$</span>
+                            _
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- =========================
+             QUICK STATS
+        ========================== -->
+        <section class="stats-section">
+
+            <div class="container stats-grid">
+
+                <div class="stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div>
+                        <strong>Fast</strong>
+                        <span>Python Server</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">🐳</div>
+                    <div>
+                        <strong>Docker</strong>
+                        <span>Containerized</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">🔄</div>
+                    <div>
+                        <strong>CI/CD</strong>
+                        <span>Automated</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">☁</div>
+                    <div>
+                        <strong>Cloud</strong>
+                        <span>Deployed</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             DASHBOARD
+        ========================== -->
+        <section id="dashboard" class="section dashboard-section">
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span class="section-label">LIVE SYSTEM</span>
+
+                        <h2>
+                            Server Dashboard
+                        </h2>
+
+                        <p>
+                            Real information retrieved directly from the
+                            running Python application.
+                        </p>
+                    </div>
+
+                    <button
+                        id="refreshDashboard"
+                        class="refresh-button"
+                    >
+                        ↻ Refresh
+                    </button>
+
+                </div>
+
+
+                <div class="dashboard-grid">
+
+                    <!-- STATUS -->
+                    <div class="dashboard-card status-card">
+
+                        <div class="card-header">
+                            <div>
+                                <span class="card-label">
+                                    SYSTEM STATUS
+                                </span>
+
+                                <h3>Application Health</h3>
+                            </div>
+
+                            <span
+                                id="healthIndicator"
+                                class="health-indicator checking"
+                            >
+                                Checking...
+                            </span>
+                        </div>
+
+                        <div class="health-main">
+
+                            <div
+                                id="healthIcon"
+                                class="health-icon"
+                            >
+                                ?
+                            </div>
+
+                            <div>
+                                <strong id="healthStatus">
+                                    Checking server...
+                                </strong>
+
+                                <p id="healthMessage">
+                                    Connecting to API
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- SERVER -->
+                    <div class="dashboard-card">
+
+                        <div class="card-header">
+
+                            <div>
+                                <span class="card-label">
+                                    SERVER
+                                </span>
+
+                                <h3>Application Info</h3>
+                            </div>
+
+                            <span class="card-symbol">⌘</span>
+
+                        </div>
+
+                        <div class="info-list">
+
+                            <div class="info-row">
+                                <span>Service</span>
+                                <strong id="serviceName">Loading...</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Status</span>
+                                <strong id="serverStatus">Loading...</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Version</span>
+                                <strong id="serverVersion">Loading...</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Port</span>
+                                <strong id="serverPort">Loading...</strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PYTHON -->
+                    <div class="dashboard-card">
+
+                        <div class="card-header">
+
+                            <div>
+                                <span class="card-label">
+                                    RUNTIME
+                                </span>
+
+                                <h3>Python Environment</h3>
+                            </div>
+
+                            <span class="card-symbol">Py</span>
+
+                        </div>
+
+                        <div class="info-list">
+
+                            <div class="info-row">
+                                <span>Python</span>
+                                <strong id="pythonVersion">Loading...</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Platform</span>
+                                <strong id="platformInfo">Loading...</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Architecture</span>
+                                <strong id="architectureInfo">Loading...</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Environment</span>
+                                <strong id="environmentInfo">Loading...</strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- UPTIME -->
+                    <div class="dashboard-card uptime-card">
+
+                        <div class="card-header">
+
+                            <div>
+                                <span class="card-label">
+                                    MONITORING
+                                </span>
+
+                                <h3>Server Uptime</h3>
+                            </div>
+
+                            <span class="card-symbol">◷</span>
+
+                        </div>
+
+                        <div class="uptime-value">
+                            <span id="uptimeValue">0s</span>
+                        </div>
+
+                        <div class="uptime-bar">
+
+                            <div
+                                id="uptimeProgress"
+                                class="uptime-progress"
+                            ></div>
+
+                        </div>
+
+                        <p class="uptime-note">
+                            Time since application startup
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             ARCHITECTURE
+        ========================== -->
+        <section class="section architecture-section">
+
+            <div class="container">
+
+                <div class="section-heading centered">
+
+                    <span class="section-label">
+                        ARCHITECTURE
+                    </span>
+
+                    <h2>
+                        From Code to Production
+                    </h2>
+
+                    <p>
+                        A complete development and deployment workflow.
+                    </p>
+
+                </div>
+
+
+                <div class="architecture-flow">
+
+                    <div class="architecture-step">
+
+                        <div class="architecture-number">
+                            01
+                        </div>
+
+                        <div class="architecture-icon">
+                            💻
+                        </div>
+
+                        <h3>Development</h3>
+
+                        <p>
+                            Python application developed with
+                            structured source code.
+                        </p>
+
+                    </div>
+
+
+                    <div class="flow-arrow">→</div>
+
+
+                    <div class="architecture-step">
+
+                        <div class="architecture-number">
+                            02
+                        </div>
+
+                        <div class="architecture-icon">
+                            🧪
+                        </div>
+
+                        <h3>Testing</h3>
+
+                        <p>
+                            Automated tests validate application
+                            behavior before deployment.
+                        </p>
+
+                    </div>
+
+
+                    <div class="flow-arrow">→</div>
+
+
+                    <div class="architecture-step">
+
+                        <div class="architecture-number">
+                            03
+                        </div>
+
+                        <div class="architecture-icon">
+                            ⚙️
+                        </div>
+
+                        <h3>CI/CD</h3>
+
+                        <p>
+                            GitHub Actions automatically builds and
+                            publishes the application.
+                        </p>
+
+                    </div>
+
+
+                    <div class="flow-arrow">→</div>
+
+
+                    <div class="architecture-step">
+
+                        <div class="architecture-number">
+                            04
+                        </div>
+
+                        <div class="architecture-icon">
+                            🐳
+                        </div>
+
+                        <h3>Docker</h3>
+
+                        <p>
+                            The application runs inside an isolated
+                            production container.
+                        </p>
+
+                    </div>
+
+
+                    <div class="flow-arrow">→</div>
+
+
+                    <div class="architecture-step">
+
+                        <div class="architecture-number">
+                            05
+                        </div>
+
+                        <div class="architecture-icon">
+                            ☁️
+                        </div>
+
+                        <h3>Deployment</h3>
+
+                        <p>
+                            The Docker application is deployed to
+                            a cloud environment.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             PROJECTS
+        ========================== -->
+        <section id="projects" class="section projects-section">
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <span class="section-label">
+                            PROJECTS
+                        </span>
+
+                        <h2>
+                            What This Project Demonstrates
+                        </h2>
+
+                        <p>
+                            Practical technologies used to build
+                            production-ready applications.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="projects-grid">
+
+                    <article class="project-card">
+
+                        <div class="project-icon">
+                            🐍
+                        </div>
+
+                        <div class="project-content">
+
+                            <span class="project-tag">
+                                BACKEND
+                            </span>
+
+                            <h3>Python Web Server</h3>
+
+                            <p>
+                                Lightweight Python HTTP server with
+                                health endpoints, runtime information
+                                and API responses.
+                            </p>
+
+                            <div class="project-tech">
+                                <span>Python</span>
+                                <span>HTTP</span>
+                                <span>REST API</span>
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="project-card">
+
+                        <div class="project-icon">
+                            🐳
+                        </div>
+
+                        <div class="project-content">
+
+                            <span class="project-tag">
+                                CONTAINER
+                            </span>
+
+                            <h3>Docker Deployment</h3>
+
+                            <p>
+                                Application packaged into a lightweight
+                                Docker container for reproducible
+                                deployment.
+                            </p>
+
+                            <div class="project-tech">
+                                <span>Docker</span>
+                                <span>Linux</span>
+                                <span>Containers</span>
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="project-card">
+
+                        <div class="project-icon">
+                            🔄
+                        </div>
+
+                        <div class="project-content">
+
+                            <span class="project-tag">
+                                AUTOMATION
+                            </span>
+
+                            <h3>CI/CD Pipeline</h3>
+
+                            <p>
+                                Automated testing and Docker image
+                                publishing using GitHub Actions.
+                            </p>
+
+                            <div class="project-tech">
+                                <span>GitHub Actions</span>
+                                <span>CI/CD</span>
+                                <span>GHCR</span>
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+                    <article class="project-card">
+
+                        <div class="project-icon">
+                            ☁️
+                        </div>
+
+                        <div class="project-content">
+
+                            <span class="project-tag">
+                                CLOUD
+                            </span>
+
+                            <h3>Cloud Deployment</h3>
+
+                            <p>
+                                Continuously deployed application
+                                running in a cloud environment.
+                            </p>
+
+                            <div class="project-tech">
+                                <span>Render</span>
+                                <span>Cloud</span>
+                                <span>Production</span>
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             SERVICES
+        ========================== -->
+        <section id="services" class="section services-section">
+
+            <div class="container">
+
+                <div class="section-heading centered">
+
+                    <span class="section-label">
+                        SERVICES
+                    </span>
+
+                    <h2>
+                        DevOps & Python Services
+                    </h2>
+
+                    <p>
+                        Technologies and solutions this portfolio is
+                        designed to demonstrate.
+                    </p>
+
+                </div>
+
+
+                <div class="services-grid">
+
+                    <div class="service-card">
+
+                        <div class="service-number">
+                            01
+                        </div>
+
+                        <h3>Python Development</h3>
+
+                        <p>
+                            Build lightweight APIs, automation tools,
+                            bots and backend services with Python.
+                        </p>
+
+                        <a href="#contact">
+                            Learn more →
+                        </a>
+
+                    </div>
+
+
+                    <div class="service-card">
+
+                        <div class="service-number">
+                            02
+                        </div>
+
+                        <h3>Docker</h3>
+
+                        <p>
+                            Containerize applications and create
+                            reproducible environments.
+                        </p>
+
+                        <a href="#contact">
+                            Learn more →
+                        </a>
+
+                    </div>
+
+
+                    <div class="service-card">
+
+                        <div class="service-number">
+                            03
+                        </div>
+
+                        <h3>CI/CD Automation</h3>
+
+                        <p>
+                            Automate testing, builds and deployments
+                            using GitHub Actions.
+                        </p>
+
+                        <a href="#contact">
+                            Learn more →
+                        </a>
+
+                    </div>
+
+
+                    <div class="service-card">
+
+                        <div class="service-number">
+                            04
+                        </div>
+
+                        <h3>Cloud Deployment</h3>
+
+                        <p>
+                            Deploy Python and Docker applications
+                            to modern cloud platforms.
+                        </p>
+
+                        <a href="#contact">
+                            Learn more →
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             API
+        ========================== -->
+        <section class="section api-section">
+
+            <div class="container">
+
+                <div class="api-panel">
+
+                    <div class="api-content">
+
+                        <span class="section-label">
+                            API
+                        </span>
+
+                        <h2>
+                            Real Backend API
+                        </h2>
+
+                        <p>
+                            This dashboard communicates directly with
+                            the Python backend instead of displaying
+                            static demo information.
+                        </p>
+
+                        <div class="api-endpoints">
+
+                            <div class="endpoint">
+                                <span class="method get">GET</span>
+                                <code>/health</code>
+                                <span>Health check</span>
+                            </div>
+
+                            <div class="endpoint">
+                                <span class="method get">GET</span>
+                                <code>/api/status</code>
+                                <span>Application status</span>
+                            </div>
+
+                            <div class="endpoint">
+                                <span class="method get">GET</span>
+                                <code>/api/info</code>
+                                <span>Runtime information</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="api-terminal">
+
+                        <div class="api-terminal-header">
+                            API RESPONSE
+                        </div>
+
+                        <pre id="apiResponse">{
+  "status": "loading",
+  "service": "python-devops-demo"
+}</pre>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             CONTACT
+        ========================== -->
+        <section id="contact" class="section contact-section">
+
+            <div class="container">
+
+                <div class="contact-card">
+
+                    <div>
+
+                        <span class="section-label">
+                            CONTACT
+                        </span>
+
+                        <h2>
+                            Let's Build Something
+                        </h2>
+
+                        <p>
+                            Interested in Python development, automation,
+                            Docker or DevOps projects?
+                        </p>
+
+                    </div>
+
+
+                    <div class="contact-buttons">
+
+                        <a
+                            href="https://github.com/samveladamyan222-a11y"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="btn btn-primary"
+                        >
+                            GitHub Profile
+                            <span>→</span>
+                        </a>
+
+                        <a
+                            href="https://github.com/samveladamyan222-a11y/python-devops-demo"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="btn btn-secondary"
+                        >
+                            View Repository
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+    <footer class="footer">
+
+        <div class="container footer-inner">
+
+            <div class="footer-brand">
+
+                <a href="/" class="logo">
+                    <span class="logo-mark">&lt;/&gt;</span>
+                    <span>DevOps<span class="logo-accent">Lab</span></span>
+                </a>
+
+                <p>
+                    Python • Docker • CI/CD • Cloud
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <a href="#home">Home</a>
+                <a href="#dashboard">Dashboard</a>
+                <a href="#projects">Projects</a>
+                <a href="#services">Services</a>
+
+            </div>
+
+
+            <div class="footer-status">
+
+                <span class="status-dot"></span>
+
+                <span>
+                    Production System
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="container footer-bottom">
+
+            <span>
+                © 2026 DevOpsLab. Built with Python.
+            </span>
+
+            <span id="lastUpdated">
+                Dashboard loading...
+            </span>
+
+        </div>
+
+    </footer>
+
+</body>
+</html>
