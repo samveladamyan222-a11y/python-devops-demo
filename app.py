@@ -23,10 +23,13 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
 
 
-if __name__ == "__main__":
-    server = HTTPServer(("0.0.0.0", 8000), Handler)
+import os
 
-    print("Server running on port 8000")
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    server = HTTPServer(("0.0.0.0", port), Handler)
+
+    print(f"Server running on port {port}")
 
     try:
         server.serve_forever()
