@@ -163,12 +163,16 @@ class DevOpsHandler(BaseHTTPRequestHandler):
         # HOME PAGE
         # ==============================
 
-        if path == "/":
-            self.serve_file(
-                TEMPLATE_DIR / "index.html",
-                "text/html; charset=utf-8"
-            )
-            return
+       if path == "/":
+    self.send_json(
+        {
+            "status": "ok",
+            "service": APP_NAME,
+            "message": "Python DevOps Demo is running"
+        }
+    )
+    return
+           
 
         # ==============================
         # HEALTH CHECK
